@@ -253,11 +253,11 @@
 
 		this.remove = function() {
 			this.blocks_ordered = [];
-			coords = this.pointer;
-			if (this.blocks[coords.x] !== undefined
-					&& this.blocks[coords.x][coords.y] !== undefined
-					&& this.blocks[coords.x][coords.y][coords.z] !== undefined) {
-					delete this.blocks[coords.x][coords.y][coords.z];
+			var c = this.pointer;
+			if (this.blocks[c.x] !== undefined
+					&& this.blocks[c.x][c.y] !== undefined
+					&& this.blocks[c.x][c.y][c.z] !== undefined) {
+					delete this.blocks[c.x][c.y][c.z];
 			}
 			this.resort();
 		};
