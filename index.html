@@ -170,7 +170,6 @@
 		};
 
 		this.render = function(canvas) {
-			// let's first try a simpler approach
 			var ctx = canvas.getContext("2d");
 			ctx.fillStyle = "#fff";
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -181,7 +180,7 @@
 			for (var i in this.blocks_ordered) {
 				var coords = this.blocks_ordered[i][0];
 				var block  = this.blocks_ordered[i][1];
-				// the next block is going to directly overlap
+				// the next block is going to overlap
 				// the pointer, so draw the pointer first
 				if (doesAoverlapB(coords, this.pointer) && !pointed) {
 					pointer.render(ctx, this.pointer);
@@ -218,9 +217,8 @@
 		};
 
 		this.resort = function() {
-			this.blocks_ordered = [];
 			// This function sorts blocks in an order for rendering
-			// Iterate over all the elements in JSON
+			this.blocks_ordered = [];
 			for (var x in this.blocks) {
 				for (var y in this.blocks[x]) {
 					for (var z in this.blocks[x][y]) {
@@ -312,7 +310,7 @@
 				break;
 			case 52: // "4"
 				break;
-			case 53: // "5", use the instrument (place block)
+			case 53: // "5"
 				let tool = inv.getSelectedTool();
 				console.log(tool);
 				if (tool == "hammer") {
