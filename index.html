@@ -231,11 +231,15 @@
 	var env = new World();
 	var inv = new Inventory();
 
-	window.onload = function() {
-		window.setInterval(function() {
+	function redrawAll() {
 			let cnv = document.getElementById("cnvs");
 			env.render(cnv);
 			inv.render(cnv);
+	}
+
+	window.onload = function() {
+		window.setInterval(function() {
+			redrawAll();
 			env.tick();
 		}, 250);
 	}
@@ -273,7 +277,10 @@
 				break;
 			case 57: // "9", rotate counter-clockwise
 				break;
+		  default:
+				return;
 		}
+		redrawAll();
 	}
 	</script>
 </body>
