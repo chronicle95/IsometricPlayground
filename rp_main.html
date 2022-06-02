@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Redstone Playground</title>
+	<meta charset="utf-8"/>
+	<style>
+	canvas {
+		width:100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+		image-rendering: pixelated;
+	}
+	</style>
+</head>
+<body>
+	<canvas id="cnvs" width="128" height="128">
+	Your browser is not supported.
+	</canvas>
+	<script>
+	const TEXTURE = 32;
+
+	var BlockOrientation = {
+		"north": 1,
+		"south": 2,
+		"east": 3,
+		"west": 4
+	};
+
+	var BlockType = {
+		"pointer": 0,
+		"grass": 1,
+		"redstone": 2,
+		"torch": 3,
+		"switch": 4,
+		"button": 5
+	};
+
+	var TexturesByType = {};
+	for (var t in BlockType) {
+		TexturesByType[BlockType[t]] = new Image();
+		TexturesByType[BlockType[t]].src = "rp_" + t + ".png";
+	}
+
+	var Block = function(type, stateLevel, orientation) {
+		this.type = type;
+		this.stateLevel = stateLevel;
+		this.orientation = orientation;
+		
+		this.getType = function() {
+			return this.type;
+		};
+	};
+
+	var Coords = function(x, y, z) {
+		this.getScrX = function() {
+			return this.x*TEXTURE/2 + this.y*TEXTURE/2;
+		};
+		this.getScrY = function() {
+			return this.x*TEXTURE/4 - this.y*TEXTURE/4 - this.z*TEXTURE/2;
+		};
+		this.move = function(direction) {
+			switch (direction) {
+				case BlockOrientation.north:
+					this.y += 1;
+					break;
+				case BlockOrientation.south:
+					this.y -= 1;
+					break;
+				case BlockOrientation.west:
+					this.x -= 1;
+					break;
+				case BlockOrientation.east:
+					this.x += 1;
+					break;
+			}
+		};
+		this.zmove = function(direction) {
+			switch (direction) {
+				case BlockOrientation.north:
+				case BlockOrientation.east:
+					this.z += 1;
+					break;
+				case BlockOrientation.south:
+				case BlockOrientation.west:
+					this.z -= 1;
+					break;
+			}
+		};
+
+		if (x instanceof Coords) {
+			this.x = x.x;
+			this.y = x.y;
+			this.z = x.z;
+		} else {
+			this.x = x;
+			this.y = y;
+			this.z = z;
+		}
+	};
+
+	function drawBlock(context, block, coords) {
+		context.drawImage(TexturesByType[block.getType()], coords.getScrX(), coords.getScrY());
+	}
+
+	function evalBlock(world, coords) {
+		let block = world.blocks[coords.x][coords.y][coords.z];
+		switch (block.getType()) {
+			case BlockType.grass:
+				break;
+			case BlockType.redstone:
+				break;
+			case BlockType.torch:
+				break;
+			case BlockType.switch:
+				break;
+			case BlockType.button:
+				break;
+		}
+	}
+	
+	var Inventory = function() {
+		this.availableTools = ["break", "wrench"];
+		for (var type in BlockType) {
+			if (type != "pointer")
+			this.availableTools = this.availableTools.concat([type]);
+		}
+		this.selectedTool = this.availableTools[0];
+
+		this.render = function(canvas) {
+			var ctx = canvas.getContext("2d");
+		};
+	};
+
+	var World = function() {
+		this.blocks = {};
+		this.blocks_ordered = [];
+		this.pointer = new Coords(0, 0, 0);
+
+		this.tick = function() {
+			for (var x in this.blocks) {
+				for (var y in this.blocks[x]) {
+					for (var z in this.blocks[x][y]) {
+						evalBlock(this, new Coords(x, y, z));
+					}
+				}
+			}
+		};
+
+		this.render = function(canvas) {
+			// let's first try a simpler approach
+			var ctx = canvas.getContext("2d");
+			ctx.fillStyle = "#fff";
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			ctx.translate(canvas.width/2, canvas.height/2);
+			ctx.translate(-TEXTURE/2, -TEXTURE/2);
+			var pointed = false;
+			var pointer = new Block(BlockType.pointer, 0, BlockOrientation.north);
+			for (var i in this.blocks_ordered) {
+				var coords = this.blocks_ordered[i][0];
+				var block  = this.blocks_ordered[i][1];
+				// the next block is going to directly overlap
+				// the pointer, so draw the pointer first
+				if ((coords.x == this.pointer.x+1 || coords.y == this.pointer.y-1) && coords.z == this.pointer.z) {
+					drawBlock(ctx, pointer, this.pointer);
+					pointed = true;
+				}
+				// draw the block
+				drawBlock(ctx, block, coords);
+				// if pointer location is the same as block's,
+				// draw pointer right over the block
+				if (coords.x == this.pointer.x && coords.y == this.pointer.y && coords.z == this.pointer.z) {
+					drawBlock(ctx, pointer, this.pointer);
+					pointed = true;
+				}
+			}
+			if (!pointed) {
+				// pointer is on an empty space in front
+				drawBlock(ctx, pointer, this.pointer);
+			}
+			ctx.translate(TEXTURE/2, TEXTURE/2);
+			ctx.translate(-canvas.width/2, -canvas.height/2);
+		};
+
+		this.zmove = function(direction) {
+			this.pointer.zmove(direction);
+		}
+
+		this.move = function(direction) {
+			this.pointer.move(direction);
+		};
+
+		this.resort = function() {
+			// This function sorts blocks in an order for rendering
+			// Iterate over all the elements in JSON
+			for (var x in this.blocks) {
+				for (var y in this.blocks[x]) {
+					for (var z in this.blocks[x][y]) {
+						this.blocks_ordered.push([new Coords(x, y, z), this.blocks[x][y][z]]);
+					}
+				}
+			}
+			this.blocks_ordered.sort(function(a, b) {
+				return Math.sign(Math.sign(a[0].z - b[0].z)*4
+				       + Math.sign(b[0].y - a[0].y)*2
+				       + Math.sign(a[0].x - b[0].x));
+			});
+		};
+
+		this.place = function(block, coords) {
+			if (coords === undefined) {
+				coords = this.pointer;
+			}
+			if (this.blocks[coords.x] === undefined) {
+				this.blocks[coords.x] = {};
+			}
+			if (this.blocks[coords.x][coords.y] === undefined) {
+				this.blocks[coords.x][coords.y] = {};
+			}
+			if (this.blocks[coords.x][coords.y][coords.z] === undefined) {
+				this.blocks[coords.x][coords.y][coords.z] = block;
+			}
+			this.pointer.z++;
+			this.resort();
+		};
+
+		this.place(new Block(BlockType.grass, 0, BlockOrientation.north));
+	};
+
+	var env = new World();
+	var inv = new Inventory();
+
+	window.onload = function() {
+		window.setInterval(function() {
+			let cnv = document.getElementById("cnvs");
+			env.render(cnv);
+			inv.render(cnv);
+			env.tick();
+		}, 250);
+	}
+
+	document.onkeypress = function(e) {
+	/* Controls:
+	 * 1 (Z+ ) 2 (Y+ ) 3 (Rt+)
+	 * 4 (X- ) 5 (Act) 6 (X+ )
+	 * 7 (Z- ) 8 (Y- ) 9 (Rt-)
+	 *         0 (Tog)
+	 */
+		switch (e.which) {
+			case 49: // "1", move up
+				env.zmove(BlockOrientation.north);
+				break;
+			case 50: // "2"
+				env.move(BlockOrientation.north);
+				break;
+			case 51: // "3", rotate clockwise
+				break;
+			case 52: // "4"
+				env.move(BlockOrientation.west);
+				break;
+			case 53: // "5", use the instrument (place block)
+			  env.place(new Block(BlockType.grass, 0, BlockOrientation.north));
+				break;
+			case 54: // "6"
+				env.move(BlockOrientation.east);
+				break;
+			case 55: // "7", move down
+				env.zmove(BlockOrientation.south);
+				break;
+			case 56: // "8"
+				env.move(BlockOrientation.south);
+				break;
+			case 57: // "9", rotate counter-clockwise
+				break;
+		}
+	}
+	</script>
+</body>
+</html>
