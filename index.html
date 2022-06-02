@@ -274,25 +274,25 @@
 
 	document.onkeypress = function(e) {
 	/* Controls:
-	 * 1 (Z+ ) 2 (Y+ ) 3 (Rt+)
-	 * 4 (X- ) 5 (Act) 6 (X+ )
-	 * 7 (Z- ) 8 (Y- ) 9 (Rt-)
+	 * 1 (UpL) 2 (VUp) 3 (UpR)
+	 * 4 (Rt-) 5 (Act) 6 (Rt+)
+	 * 7 (DnL) 8 (VDn) 9 (DnR)
 	 *         0 (Tog)
 	 */
 		switch (e.which) {
 			case 48: // "0", toggle instrument
 				inv.toggle();
 				break;
-			case 49: // "1", move up
-				env.zmove(BlockOrientation.north);
+			case 49: // "1"
+				env.move(BlockOrientation.west);
 				break;
 			case 50: // "2"
+				env.zmove(BlockOrientation.north);
+				break;
+			case 51: // "3"
 				env.move(BlockOrientation.north);
 				break;
-			case 51: // "3", rotate clockwise
-				break;
 			case 52: // "4"
-				env.move(BlockOrientation.west);
 				break;
 			case 53: // "5", use the instrument (place block)
 				let tool = inv.getSelectedTool();
@@ -307,15 +307,15 @@
 				e.preventDefault();
 				break;
 			case 54: // "6"
-				env.move(BlockOrientation.east);
 				break;
-			case 55: // "7", move down
-				env.zmove(BlockOrientation.south);
-				break;
-			case 56: // "8"
+			case 55: // "7"
 				env.move(BlockOrientation.south);
 				break;
-			case 57: // "9", rotate counter-clockwise
+			case 56: // "8"
+				env.zmove(BlockOrientation.south);
+				break;
+			case 57: // "9"
+				env.move(BlockOrientation.east);
 				break;
 		  default:
 				return;
