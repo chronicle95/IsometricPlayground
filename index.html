@@ -55,6 +55,10 @@
 		this.rotate = function() {
 			this.orientation = (this.orientation + 1) % 4;
 		};
+
+		this.render = function(context, coords) {
+			context.drawImage(TexturesByType[this.getType()], coords.getScrX(), coords.getScrY());
+		};
 	};
 
 	var Coords = function(x, y, z) {
@@ -103,10 +107,6 @@
 			this.z = z;
 		}
 	};
-
-	function drawBlock(context, block, coords) {
-		context.drawImage(TexturesByType[block.getType()], coords.getScrX(), coords.getScrY());
-	}
 
 	function evalBlock(world, coords) {
 		let block = world.blocks[coords.x][coords.y][coords.z];
@@ -184,21 +184,21 @@
 				// the next block is going to directly overlap
 				// the pointer, so draw the pointer first
 				if (doesAoverlapB(coords, this.pointer) && !pointed) {
-					drawBlock(ctx, pointer, this.pointer);
+					pointer.render(ctx, this.pointer);
 					pointed = true;
 				}
 				// draw the block
-				drawBlock(ctx, block, coords);
+				block.render(ctx, coords);
 				// if pointer location is the same as block's,
 				// draw pointer right over the block
 				if (coords.x == this.pointer.x && coords.y == this.pointer.y && coords.z == this.pointer.z) {
-					drawBlock(ctx, pointer, this.pointer);
+					pointer.render(ctx, this.pointer);
 					pointed = true;
 				}
 			}
 			if (!pointed) {
 				// pointer is on an empty space in front
-				drawBlock(ctx, pointer, this.pointer);
+				pointer.render(ctx, this.pointer);
 			}
 			ctx.translate(TEXTURE/2, TEXTURE/2);
 			ctx.translate(-canvas.width/2, -canvas.height/2);
