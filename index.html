@@ -121,7 +121,7 @@
 	}
 	
 	var Inventory = function() {
-		this.availableTools = ["break", "wrench"];
+		this.availableTools = ["hammer", "wrench"];
 		for (var type in BlockType) {
 			if (type != "pointer")
 			this.availableTools = this.availableTools.concat([type]);
@@ -130,6 +130,10 @@
 
 		this.toggle = function() {
 			this.selectedTool = (this.selectedTool + 1) % this.availableTools.length;
+		};
+
+		this.getSelectedTool = function() {
+			return this.availableTools[this.selectedTool];
 		};
 
 		this.render = function(canvas) {
@@ -201,6 +205,7 @@
 		};
 
 		this.resort = function() {
+			this.blocks_ordered = [];
 			// This function sorts blocks in an order for rendering
 			// Iterate over all the elements in JSON
 			for (var x in this.blocks) {
@@ -231,6 +236,21 @@
 				this.blocks[coords.x][coords.y][coords.z] = block;
 			}
 			this.resort();
+		};
+
+		this.remove = function() {
+			this.blocks_ordered = [];
+			coords = this.pointer;
+			if (this.blocks[coords.x] !== undefined
+					&& this.blocks[coords.x][coords.y] !== undefined
+					&& this.blocks[coords.x][coords.y][coords.z] !== undefined) {
+					delete this.blocks[coords.x][coords.y][coords.z];
+			}
+			this.resort();
+		};
+
+		this.turn = function() {
+			// TODO
 		};
 
 		this.place(new Block(BlockType.grass, 0, BlockOrientation.north));
@@ -275,7 +295,15 @@
 				env.move(BlockOrientation.west);
 				break;
 			case 53: // "5", use the instrument (place block)
-			  env.place(new Block(BlockType.grass, 0, BlockOrientation.north));
+				let tool = inv.getSelectedTool();
+				console.log(tool);
+				if (tool == "hammer") {
+					env.remove();
+				} else if (tool == "wrench") {
+					env.turn();
+				} else {
+					env.place(new Block(BlockType[tool], 0, BlockOrientation.north));
+				}
 				e.preventDefault();
 				break;
 			case 54: // "6"
