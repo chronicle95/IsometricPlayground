@@ -263,7 +263,12 @@
 		};
 
 		this.turn = function() {
-			// TODO
+			var c = this.pointer;
+			if (this.blocks[c.x] !== undefined
+					&& this.blocks[c.x][c.y] !== undefined
+					&& this.blocks[c.x][c.y][c.z] !== undefined) {
+					this.blocks[c.x][c.y][c.z].rotate();
+			}
 		};
 
 		this.place(new Block(BlockType.grass, 0, BlockOrientation.north));
