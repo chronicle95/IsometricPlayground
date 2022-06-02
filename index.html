@@ -21,7 +21,7 @@
 	<script>
 	const TEXTURE = 32;
 
-	var BlockOrientation = {
+	var Orientation = {
 		"north": 0,
 		"east": 1,
 		"south": 2,
@@ -66,28 +66,28 @@
 		};
 		this.move = function(direction) {
 			switch (direction) {
-				case BlockOrientation.north:
+				case Orientation.north:
 					this.y += 1;
 					break;
-				case BlockOrientation.south:
+				case Orientation.south:
 					this.y -= 1;
 					break;
-				case BlockOrientation.west:
+				case Orientation.west:
 					this.x -= 1;
 					break;
-				case BlockOrientation.east:
+				case Orientation.east:
 					this.x += 1;
 					break;
 			}
 		};
 		this.zmove = function(direction) {
 			switch (direction) {
-				case BlockOrientation.north:
-				case BlockOrientation.east:
+				case Orientation.north:
+				case Orientation.east:
 					this.z += 1;
 					break;
-				case BlockOrientation.south:
-				case BlockOrientation.west:
+				case Orientation.south:
+				case Orientation.west:
 					this.z -= 1;
 					break;
 			}
@@ -177,7 +177,7 @@
 			ctx.translate(canvas.width/2, canvas.height/2);
 			ctx.translate(-TEXTURE/2, -TEXTURE/2);
 			var pointed = false;
-			var pointer = new Block(BlockType.pointer, 0, BlockOrientation.north);
+			var pointer = new Block(BlockType.pointer, 0, Orientation.north);
 			for (var i in this.blocks_ordered) {
 				var coords = this.blocks_ordered[i][0];
 				var block  = this.blocks_ordered[i][1];
@@ -271,7 +271,7 @@
 			}
 		};
 
-		this.place(new Block(BlockType.grass, 0, BlockOrientation.north));
+		this.place(new Block(BlockType.grass, 0, Orientation.north));
 	};
 
 	var env = new World();
@@ -302,13 +302,13 @@
 				inv.toggle();
 				break;
 			case 49: // "1"
-				env.move(BlockOrientation.west);
+				env.move(Orientation.west);
 				break;
 			case 50: // "2"
-				env.zmove(BlockOrientation.north);
+				env.zmove(Orientation.north);
 				break;
 			case 51: // "3"
-				env.move(BlockOrientation.north);
+				env.move(Orientation.north);
 				break;
 			case 52: // "4"
 				break;
@@ -320,20 +320,20 @@
 				} else if (tool == "wrench") {
 					env.turn();
 				} else {
-					env.place(new Block(BlockType[tool], 0, BlockOrientation.north));
+					env.place(new Block(BlockType[tool], 0, Orientation.north));
 				}
 				e.preventDefault();
 				break;
 			case 54: // "6"
 				break;
 			case 55: // "7"
-				env.move(BlockOrientation.south);
+				env.move(Orientation.south);
 				break;
 			case 56: // "8"
-				env.zmove(BlockOrientation.south);
+				env.zmove(Orientation.south);
 				break;
 			case 57: // "9"
-				env.move(BlockOrientation.east);
+				env.move(Orientation.east);
 				break;
 		  default:
 				return;
