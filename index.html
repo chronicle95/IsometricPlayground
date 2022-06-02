@@ -194,6 +194,9 @@
 			}
 			ctx.translate(TEXTURE/2, TEXTURE/2);
 			ctx.translate(-canvas.width/2, -canvas.height/2);
+			ctx.fillStyle = "#777";
+			ctx.font = "8px monospace";
+			ctx.fillText(this.pointer.x + "," + this.pointer.y + "," + this.pointer.z, 3, canvas.height - 8);
 		};
 
 		this.zmove = function(direction) {
