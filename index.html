@@ -120,6 +120,10 @@
 		}
 	}
 	
+	function doesAoverlapB(a, b) {
+		return ((a.x == b.x+1 || a.y == b.y-1) && (a.z == b.z || a.z == b.z+1)) || (a.x == b.x && a.y == b.y && a.z == b.z+1);
+	}
+
 	var Inventory = function() {
 		this.availableTools = ["hammer", "wrench"];
 		for (var type in BlockType) {
@@ -175,7 +179,7 @@
 				var block  = this.blocks_ordered[i][1];
 				// the next block is going to directly overlap
 				// the pointer, so draw the pointer first
-				if ((coords.x == this.pointer.x+1 || coords.y == this.pointer.y-1) && coords.z == this.pointer.z && !pointed) {
+				if (doesAoverlapB(coords, this.pointer) && !pointed) {
 					drawBlock(ctx, pointer, this.pointer);
 					pointed = true;
 				}
