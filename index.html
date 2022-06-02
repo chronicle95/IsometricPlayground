@@ -126,10 +126,17 @@
 			if (type != "pointer")
 			this.availableTools = this.availableTools.concat([type]);
 		}
-		this.selectedTool = this.availableTools[0];
+		this.selectedTool = 0;
+
+		this.toggle = function() {
+			this.selectedTool = (this.selectedTool + 1) % this.availableTools.length;
+		};
 
 		this.render = function(canvas) {
 			var ctx = canvas.getContext("2d");
+			ctx.fillStyle = "#000";
+			ctx.font = "10px terminal";
+			ctx.fillText(this.availableTools[this.selectedTool], 3, 10);
 		};
 	};
 
@@ -221,7 +228,6 @@
 			if (this.blocks[coords.x][coords.y][coords.z] === undefined) {
 				this.blocks[coords.x][coords.y][coords.z] = block;
 			}
-			this.pointer.z++;
 			this.resort();
 		};
 
@@ -252,6 +258,9 @@
 	 *         0 (Tog)
 	 */
 		switch (e.which) {
+			case 48: // "0", toggle instrument
+				inv.toggle();
+				break;
 			case 49: // "1", move up
 				env.zmove(BlockOrientation.north);
 				break;
@@ -265,6 +274,7 @@
 				break;
 			case 53: // "5", use the instrument (place block)
 			  env.place(new Block(BlockType.grass, 0, BlockOrientation.north));
+				e.preventDefault();
 				break;
 			case 54: // "6"
 				env.move(BlockOrientation.east);
