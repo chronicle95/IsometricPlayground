@@ -57,7 +57,13 @@
 		};
 
 		this.render = function(context, coords) {
-			context.drawImage(TexturesByType[this.getType()], coords.getScrX(), coords.getScrY());
+			var sX = 0;
+			var sY = 0;
+			if (this.type != "pointer" && this.type != "grass") {
+				sX = this.stateLevel * TEXTURE;
+				sY = this.orientation * TEXTURE;
+			}
+			context.drawImage(TexturesByType[this.getType()], sX, sY, TEXTURE, TEXTURE, coords.getScrX(), coords.getScrY(), TEXTURE, TEXTURE);
 		};
 	};
 
@@ -202,7 +208,7 @@
 			ctx.translate(TEXTURE/2, TEXTURE/2);
 			ctx.translate(-canvas.width/2, -canvas.height/2);
 			ctx.fillStyle = "#777";
-			ctx.font = "8px monospace";
+			ctx.font = Math.floor(canvas.height/12) + "px monospace";
 			ctx.textAlign = "end";
 			ctx.fillText("@ " + this.pointer.x + "," + this.pointer.y + "," + this.pointer.z, canvas.width - 3, 10);
 			ctx.textAlign = "start";
