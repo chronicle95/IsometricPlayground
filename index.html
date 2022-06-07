@@ -21,6 +21,7 @@
 	<script>
 	const TEXTURE = 32;
 	const FONT_SCALE = 1/16;
+	const BLOCK_SCALE = 1/4;
 
 	var Orientation = {
 		"north": 0,
@@ -57,23 +58,26 @@
 			this.orientation = (this.orientation + 1) % 4;
 		};
 
-		this.render = function(context, coords) {
+		this.render = function(context, coords, sf) {
 			var sX = 0;
 			var sY = 0;
+			if (sf === undefined) sf = 1;
 			if (this.type != "pointer" && this.type != "grass") {
 				sX = this.stateLevel * TEXTURE;
 				sY = this.orientation * TEXTURE;
 			}
-			context.drawImage(TexturesByType[this.getType()], sX, sY, TEXTURE, TEXTURE, coords.getScrX(), coords.getScrY(), TEXTURE, TEXTURE);
+			context.drawImage(TexturesByType[this.getType()], sX, sY, TEXTURE, TEXTURE, coords.getScrX(sf), coords.getScrY(sf), TEXTURE * sf, TEXTURE * sf);
 		};
 	};
 
 	var Coords = function(x, y, z) {
-		this.getScrX = function() {
-			return this.x*TEXTURE/2 + this.y*TEXTURE/2;
+		this.getScrX = function(sf) {
+			if (sf === undefined) sf = 1;
+			return (this.x*TEXTURE/2 + this.y*TEXTURE/2) * sf;
 		};
-		this.getScrY = function() {
-			return this.x*TEXTURE/4 - this.y*TEXTURE/4 - this.z*TEXTURE/2;
+		this.getScrY = function(sf) {
+			if (sf === undefined) sf = 1;
+			return (this.x*TEXTURE/4 - this.y*TEXTURE/4 - this.z*TEXTURE/2) * sf;
 		};
 		this.move = function(direction) {
 			switch (direction) {
@@ -162,10 +166,11 @@
 		};
 	};
 
-	var World = function() {
+	var World = function(scale) {
 		this.blocks = {};
 		this.blocks_ordered = [];
 		this.pointer = new Coords(0, 0, 0);
+		this.scale = scale;
 
 		this.tick = function() {
 			for (var x in this.blocks) {
@@ -179,10 +184,12 @@
 
 		this.render = function(canvas) {
 			var ctx = canvas.getContext("2d");
+			ctx.imageSmoothingEnabled = false;
 			ctx.fillStyle = "#fff";
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 			ctx.translate(canvas.width/2, canvas.height/2);
 			ctx.translate(-TEXTURE/2, -TEXTURE/2);
+			let scaleFactor = canvas.width * this.scale / TEXTURE;
 			var pointed = false;
 			var pointer = new Block(BlockType.pointer, 0, Orientation.north);
 			for (var i in this.blocks_ordered) {
@@ -191,21 +198,21 @@
 				// the next block is going to overlap
 				// the pointer, so draw the pointer first
 				if (doesAoverlapB(coords, this.pointer) && !pointed) {
-					pointer.render(ctx, this.pointer);
+					pointer.render(ctx, this.pointer, scaleFactor);
 					pointed = true;
 				}
 				// draw the block
-				block.render(ctx, coords);
+				block.render(ctx, coords, scaleFactor);
 				// if pointer location is the same as block's,
 				// draw pointer right over the block
 				if (coords.x == this.pointer.x && coords.y == this.pointer.y && coords.z == this.pointer.z) {
-					pointer.render(ctx, this.pointer);
+					pointer.render(ctx, this.pointer, scaleFactor);
 					pointed = true;
 				}
 			}
 			if (!pointed) {
 				// pointer is on an empty space in front
-				pointer.render(ctx, this.pointer);
+				pointer.render(ctx, this.pointer, scaleFactor);
 			}
 			ctx.translate(TEXTURE/2, TEXTURE/2);
 			ctx.translate(-canvas.width/2, -canvas.height/2);
@@ -281,7 +288,7 @@
 		this.place(new Block(BlockType.grass, 0, Orientation.north));
 	};
 
-	var env = new World();
+	var env = new World(BLOCK_SCALE);
 	var inv = new Inventory();
 
 	function redrawAll() {
