@@ -184,12 +184,13 @@
 
 		this.render = function(canvas) {
 			var ctx = canvas.getContext("2d");
+			let scaleFactor = canvas.width * this.scale / TEXTURE;
+			let scaledTexture = TEXTURE * scaleFactor;
 			ctx.imageSmoothingEnabled = false;
 			ctx.fillStyle = "#fff";
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 			ctx.translate(canvas.width/2, canvas.height/2);
-			ctx.translate(-TEXTURE/2, -TEXTURE/2);
-			let scaleFactor = canvas.width * this.scale / TEXTURE;
+			ctx.translate(-scaledTexture/2, -scaledTexture/2);
 			var pointed = false;
 			var pointer = new Block(BlockType.pointer, 0, Orientation.north);
 			for (var i in this.blocks_ordered) {
@@ -214,7 +215,7 @@
 				// pointer is on an empty space in front
 				pointer.render(ctx, this.pointer, scaleFactor);
 			}
-			ctx.translate(TEXTURE/2, TEXTURE/2);
+			ctx.translate(scaledTexture/2, scaledTexture/2);
 			ctx.translate(-canvas.width/2, -canvas.height/2);
 			ctx.fillStyle = "#777";
 			let fontSize = Math.floor(canvas.height * FONT_SCALE);
