@@ -21,7 +21,9 @@
 	<script>
 	const TEXTURE = 32;
 	const FONT_SCALE = 1/16;
-	const BLOCK_SCALE = 1/4;
+	const BLOCK_SCALE1 = 1/4;
+	const BLOCK_SCALE2 = 1/8;
+	const BLOCK_SCALE3 = 1/16;
 
 	var Orientation = {
 		"north": 0,
@@ -67,6 +69,16 @@
 				sY = this.orientation * TEXTURE;
 			}
 			context.drawImage(TexturesByType[this.getType()], sX, sY, TEXTURE, TEXTURE, coords.getScrX(sf), coords.getScrY(sf), TEXTURE * sf, TEXTURE * sf);
+		};
+	};
+
+	var Scale = function(availableScales) {
+		this.selection = availableScales;
+		this.currentIndex = 0;
+
+		this.getNextScale = function() {
+			this.currentIndex = (this.currentIndex + 1) % this.selection.length;
+			return this.selection[this.currentIndex];
 		};
 	};
 
@@ -140,7 +152,7 @@
 	}
 
 	var Inventory = function(scale) {
-		this.availableTools = ["hammer", "wrench"];
+		this.availableTools = ["hammer", "wrench", "zoom"];
 		for (var type in BlockType) {
 			if (type != "pointer")
 			this.availableTools = this.availableTools.concat([type]);
@@ -173,6 +185,10 @@
 		this.pointer = new Coords(0, 0, 0);
 		this.scale = bscale;
 		this.textScale = tscale;
+
+		this.setBlockScale = function(scale) {
+			this.scale = scale;
+		};
 
 		this.tick = function() {
 			for (var x in this.blocks) {
@@ -291,7 +307,8 @@
 		this.place(new Block(BlockType.grass, 0, Orientation.north));
 	};
 
-	var env = new World(BLOCK_SCALE, FONT_SCALE);
+	var sc  = new Scale([BLOCK_SCALE1, BLOCK_SCALE2, BLOCK_SCALE3]);
+	var env = new World(BLOCK_SCALE1, FONT_SCALE);
 	var inv = new Inventory(FONT_SCALE);
 
 	function redrawAll() {
@@ -338,6 +355,8 @@
 					env.remove();
 				} else if (tool == "wrench") {
 					env.turn();
+				} else if (tool == "zoom") {
+					env.setBlockScale(sc.getNextScale());
 				} else {
 					env.place(new Block(BlockType[tool], 0, Orientation.north));
 				}
