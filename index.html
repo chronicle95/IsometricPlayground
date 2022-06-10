@@ -139,13 +139,14 @@
 		return ((a.x == b.x+1 || a.y == b.y-1) && (a.z == b.z || a.z == b.z+1)) || (a.x == b.x && a.y == b.y && a.z == b.z+1);
 	}
 
-	var Inventory = function() {
+	var Inventory = function(scale) {
 		this.availableTools = ["hammer", "wrench"];
 		for (var type in BlockType) {
 			if (type != "pointer")
 			this.availableTools = this.availableTools.concat([type]);
 		}
 		this.selectedTool = 0;
+		this.scale = scale;
 
 		this.toggle = function() {
 			this.selectedTool = (this.selectedTool + 1) % this.availableTools.length;
@@ -158,7 +159,7 @@
 		this.render = function(canvas) {
 			var ctx = canvas.getContext("2d");
 			ctx.fillStyle = "#000";
-			let fontSize = Math.floor(canvas.height * FONT_SCALE);
+			let fontSize = Math.floor(canvas.height * this.scale);
 			ctx.font = fontSize + "px terminal";
 			ctx.fillText(this.availableTools[this.selectedTool], 4, fontSize + 2);
 			ctx.fillStyle = "#ff0";
@@ -166,11 +167,12 @@
 		};
 	};
 
-	var World = function(scale) {
+	var World = function(bscale, tscale) {
 		this.blocks = {};
 		this.blocks_ordered = [];
 		this.pointer = new Coords(0, 0, 0);
-		this.scale = scale;
+		this.scale = bscale;
+		this.textScale = tscale;
 
 		this.tick = function() {
 			for (var x in this.blocks) {
@@ -218,7 +220,7 @@
 			ctx.translate(scaledTexture/2, scaledTexture/2);
 			ctx.translate(-canvas.width/2, -canvas.height/2);
 			ctx.fillStyle = "#777";
-			let fontSize = Math.floor(canvas.height * FONT_SCALE);
+			let fontSize = Math.floor(canvas.height * this.textScale);
 			ctx.font = fontSize + "px monospace";
 			ctx.textAlign = "end";
 			ctx.fillText("@ " + this.pointer.x + "," + this.pointer.y + "," + this.pointer.z, canvas.width - 3, fontSize);
@@ -289,8 +291,8 @@
 		this.place(new Block(BlockType.grass, 0, Orientation.north));
 	};
 
-	var env = new World(BLOCK_SCALE);
-	var inv = new Inventory();
+	var env = new World(BLOCK_SCALE, FONT_SCALE);
+	var inv = new Inventory(FONT_SCALE);
 
 	function redrawAll() {
 			let cnv = document.getElementById("cnvs");
