@@ -266,9 +266,11 @@
 			this.resort();
 		};
 
-		this.remove = function() {
+		this.remove = function(c) {
 			this.blocks_ordered = [];
-			var c = this.pointer;
+			if (c === undefined) {
+				c = this.pointer;
+			}
 			if (this.blocks[c.x] !== undefined
 					&& this.blocks[c.x][c.y] !== undefined
 					&& this.blocks[c.x][c.y][c.z] !== undefined) {
@@ -277,8 +279,10 @@
 			this.resort();
 		};
 
-		this.turn = function() {
-			var c = this.pointer;
+		this.turn = function(c) {
+			if (c === undefined) {
+				c = this.pointer;
+			}
 			if (this.blocks[c.x] !== undefined
 					&& this.blocks[c.x][c.y] !== undefined
 					&& this.blocks[c.x][c.y][c.z] !== undefined) {
