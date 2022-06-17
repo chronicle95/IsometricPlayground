@@ -250,18 +250,18 @@
 			});
 		};
 
-		this.place = function(block, coords) {
-			if (coords === undefined) {
-				coords = this.pointer;
+		this.place = function(block, c) {
+			if (c === undefined) {
+				c = this.pointer;
 			}
-			if (this.blocks[coords.x] === undefined) {
-				this.blocks[coords.x] = {};
+			if (this.blocks[c.x] === undefined) {
+				this.blocks[c.x] = {};
 			}
-			if (this.blocks[coords.x][coords.y] === undefined) {
-				this.blocks[coords.x][coords.y] = {};
+			if (this.blocks[c.x][c.y] === undefined) {
+				this.blocks[c.x][c.y] = {};
 			}
-			if (this.blocks[coords.x][coords.y][coords.z] === undefined) {
-				this.blocks[coords.x][coords.y][coords.z] = block;
+			if (this.blocks[c.x][c.y][c.z] === undefined) {
+				this.blocks[c.x][c.y][c.z] = block;
 			}
 			this.resort();
 		};
